@@ -3,9 +3,14 @@ import uvicorn
 import pandas
 from fastapi import FastAPI, HTTPException
 
+from app.controllers import auth
+
 app = FastAPI()
 #NOTE: FastF1 uses Pandas and Numpy -> They have their own number types
 #FastAPI expects standard python types (int, float etc) so that it can turn them into JSON format
+
+#Include routers
+app.include_router(auth.router)
 
 @app.get("/")
 def read_root():

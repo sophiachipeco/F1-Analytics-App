@@ -1,14 +1,14 @@
 #Database connection with supabase
 
 from sqlalchemy import create_engine
-# from sqlalchemy.pool import NullPool
+from sqlalchemy.orm import sessionmaker, declarative_base
+from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 
 # Load environment variables from .env
 load_dotenv()
 
-# Fetch variables
 USER = os.getenv("user")
 PASSWORD = os.getenv("password")
 HOST = os.getenv("host")
@@ -20,9 +20,29 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 
 # Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
-# If using Transaction Pooler or Session Pooler, we want to ensure we disable SQLAlchemy client side pooling -
-# https://docs.sqlalchemy.org/en/20/core/pooling.html#switching-pool-implementations
-# engine = create_engine(DATABASE_URL, poolclass=NullPool)
+
+#Creates new db session per request
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+#Class the models inherit from
+Base = declarative_base()
+
+#Supabase Client setup
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+else:
+    supabase = None
+    print("Supabase URL/Key not found")
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Test the connection
 try:
