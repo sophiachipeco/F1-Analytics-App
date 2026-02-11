@@ -1,0 +1,14 @@
+# backend/Dockerfile
+#Packs python, libraries and code for API
+FROM python:3.11-slim
+
+WORKDIR /src
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+#copy backend code
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
