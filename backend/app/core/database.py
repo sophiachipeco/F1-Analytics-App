@@ -26,11 +26,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# Optional: Quick test when running this file directly
-if __name__ == "__main__":
-    try:
-        with engine.connect() as connection:
-            print("Successfully connected to the Docker database!")
-    except Exception as e:
-        print(f"Connection failed: {e}")
