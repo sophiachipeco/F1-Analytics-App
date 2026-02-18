@@ -1,21 +1,21 @@
 "use client";
 
 import { UserMenu } from "@/components/user-menu";
-import { useAuth } from "@/lib/auth-context";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [status, router]);
 
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="animate-pulse">
@@ -25,7 +25,7 @@ export default function Home() {
     );
   }
 
-  if (!user) {
+  if (!session) {
     return null;
   }
 
@@ -51,7 +51,7 @@ export default function Home() {
           {/* Welcome Card */}
           <div className="md:col-span-3 bg-gray-50 dark:bg-black border-2 border-red-600 rounded-lg p-8 hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] transition">
             <h2 className="text-3xl font-black text-black dark:text-white mb-2">
-              WELCOME, {(user.user_metadata?.display_name || user.email)?.toUpperCase()}
+              WELCOME, {(session.user?.name || session.user?.email)?.toUpperCase()}
             </h2>
             <p className="text-gray-700 dark:text-gray-300 text-lg">
               EXPLORE F1 ANALYTICS, TELEMETRY DATA, AND RACE REPLAYS.

@@ -1,20 +1,20 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
 export function UserMenu() {
-  const { user, logout, loading } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (loading) {
+  if (status === "loading") {
     return <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse" />;
   }
 
-  if (!user) {
+  if (!session) {
     return (
       <div className="flex gap-2">
         <Button
@@ -35,13 +35,7 @@ export function UserMenu() {
   }
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      setIsOpen(false);
-      router.push("/login");
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
+    await signOut({ redirect: true, callbackUrl: "/login" });
   };
 
   return (
@@ -51,10 +45,10 @@ export function UserMenu() {
         className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition border border-gray-300 dark:border-gray-700"
       >
         <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-          {(user.user_metadata?.display_name || user.email)?.[0]?.toUpperCase() || "U"}
+          {(session.user?.name || session.user?.email)?.[0]?.toUpperCase() || "U"}
         </div>
         <span className="text-black dark:text-white text-sm font-medium hidden sm:inline">
-          {user.user_metadata?.display_name || user.email}
+          {session.user?.name || session.user?.email}
         </span>
       </button>
 
@@ -63,7 +57,7 @@ export function UserMenu() {
           <div className="p-3 border-b border-gray-300 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400">Signed in as</p>
             <p className="text-black dark:text-white font-semibold text-sm truncate">
-              {user.user_metadata?.display_name || user.email}
+              {session.user?.name || session.user?.email}
             </p>
           </div>
           <button
