@@ -7,3 +7,6 @@ SQLAlchemy==2.0.45
 supabase==2.13.0
 uvicorn==0.40.0
 psycopg2-binary
+bcrypt==4.1.2
+PyJWT==2.11.0
+email-validator

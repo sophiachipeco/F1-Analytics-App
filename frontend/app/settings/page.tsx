@@ -1,23 +1,23 @@
 "use client";
 
 import { UserMenu } from "@/components/user-menu";
-import { useAuth } from "@/lib/auth-context";
+import { useSession } from "next-auth/react";
 import { useTheme } from "@/lib/theme-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SettingsPage() {
-  const { user, loading } = useAuth();
+  const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [status, router]);
 
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
         <div className="animate-pulse">
@@ -27,7 +27,7 @@ export default function SettingsPage() {
     );
   }
 
-  if (!user) {
+  if (!session) {
     return null;
   }
 
@@ -109,14 +109,14 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold">
                       EMAIL
                     </p>
-                    <p className="text-black dark:text-white">{user.email}</p>
+                    <p className="text-black dark:text-white">{session.user?.email}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold">
                       DISPLAY NAME
                     </p>
                     <p className="text-black dark:text-white">
-                      {user.user_metadata?.display_name || "Not set"}
+                      {session.user?.name || "Not set"}
                     </p>
                   </div>
                 </div>
